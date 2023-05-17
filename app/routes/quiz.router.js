@@ -1,26 +1,16 @@
 const express = require('express');
-const { route } = require('./user.router');
+const quizController = require('../controllers/quiz.controller')
 
 const router = express.Router();
 
-router.get('getQuizById', (req, res)=>{
+router.get('getQuizById/:id', quizController.getQuizById)
 
-})
+router.get('getRandomQuiz', quizController.getRandomQuiz)
 
-router.get('getRandomQuiz', (req, res)=>{
+router.post('createNewQuiz', quizController.createNewQuiz)
 
-})
+router.put('updateQuizById/:id', quizController.updateQuizById)
 
-router.post('createNewQuiz', (req,res)=>{
-
-})
-
-router.put('updateQuizById', (req, res)=>{
-
-})
-
-router.delete('deleteQuizById', (req, res)=>{
-
-})
+router.delete('deleteQuizById/:id', quizController.deleteQuizById)
 
 module.exports = router;
