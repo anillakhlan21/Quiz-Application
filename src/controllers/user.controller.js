@@ -1,4 +1,7 @@
 const User = require('../models/user.model')
+const crypto = require('crypto');
+const {createUserValidator, updateUserValidator} = require('../validators/user.validator');
+
 
 async function getAll(req, res){
     try {
@@ -23,7 +26,17 @@ async function getById(req, res){
 }
 
 async function create(req, res){
-    const userData = req.body;
+    const {error} = createUserValidator.validate(req.body);
+    if(error){
+       return res.status(400).json({error: error.details[0].message, message: 'Bad Request'})
+    }
+    let userData = req.body;
+    const { password } = userData;
+
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+
+    userData = Object.assign(userData, {password: hash, salt});
     try {
         const newUser = await User.create(userData);
         res.status(201).json(newUser);
@@ -33,8 +46,13 @@ async function create(req, res){
 }
 
 async function updateById(req, res){
-    const {id} = req.params;
     const updatedData = req.body;
+    const { error } = updateUserValidator.validate(updatedData);
+    if(error){
+        return res.status(400).json({error: error.details[0].message, message: 'Bad Request'})
+    }
+    const {userId} = req.params;
+    
     try {
         const updatedUser = await User.findByIdAndUpdate(userId, updatedData);
         if(!updatedData){
@@ -48,9 +66,9 @@ async function updateById(req, res){
 }
 
 async function deleteById(req, res){
-    const {id } = rq.params;
+    const {userId } = req.params;
     try {
-        const deletedUser = await User.findByIdAndDelete(id);
+        const deletedUser = await User.findByIdAndDelete(userId);
         if(!deletedUser){
             return res.status(404).json({message: 'User Not Found'})
         }

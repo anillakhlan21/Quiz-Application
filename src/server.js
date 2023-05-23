@@ -1,8 +1,9 @@
 const express = require('express');
-const connectDB = require('../config/database.config');
-const userRoutes = require('./routes/user.router');
-const quizRoutes = require('./routes/quiz.router');
-const scoreRoutes = require('./routes/score.router');
+const connectDB = require('./config/database.config');
+const quizRouter = require('./routes/quiz.router');
+const scoreRouter = require('./routes/score.router');
+const userRouter = require('./routes/user.router');
+
 
 require('dotenv').config();
 
@@ -13,10 +14,12 @@ app.use(express.urlencoded({
     extended: true
 }));
 
+app.use(quizRouter)
+app.use(scoreRouter)
+app.use(userRouter)
 
-app.use('/user/', userRoutes);
-app.use('/quiz/', quizRoutes);
-app.use('/score/', scoreRoutes);
+
+
 
 app.use((req, res, next) => {
     const error = new Error('Invalid route');
